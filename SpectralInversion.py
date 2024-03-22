@@ -15,11 +15,8 @@ import random
 def spectral_inversion(
     reference_spectra,
     residual_spectra,
-    lambda_,
     dataset,
     compound_list,
-    post_cov = True,
-    do_spilu = True,
     ):
     """
     Temporally regularised inversion using selected bassis functions.
@@ -28,9 +25,6 @@ def spectral_inversion(
         reference_spectra (np.ndarray): The absorption spectra, shape (Ns, Nl)
         residual_spectra (np.ndarray): The residuals of the transmiatted spectra,
             shape (Np, Nl)
-        lambda_ (float): The amount of regularisation. 0.005 seems to work?
-        post_cov (boolean, optional): Return inverse posterior covariance matrix.
-            Defaults to True.
         do_spilu (boolean, optional): Solve the system using and ILU factorisation.
             Seems faster and more memory efficient, with an error around 0.5-1%
 
@@ -91,9 +85,8 @@ def spectral_inversion(
     plt.close()
 
     cobj = spl.spilu(C)
-    x_sol = cobj.solve(A_mat.T @ y) if do_spilu else spl.spsolve(C, A_mat.T @ y)
-
-    return (x_sol, sigma, C) if post_cov else (x_sol, sigma)
+    x_sol = cobj.solve(A_mat.T @ y)
+    return (x_sol, sigma, C)
 
 def build_A_matrix(spectra, Ns, Nl, Np):
     """Builds the A matrix from the spectra.
